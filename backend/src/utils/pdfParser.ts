@@ -1,9 +1,13 @@
 import pdfParse from 'pdf-parse';
-import fs from 'fs/promises';
 
-export const extractTextFromPDF = async (filePath: string): Promise<string> => {
+export const extractTextFromPDF = async (fileUrl: string): Promise<string> => {
   try {
-    const dataBuffer = await fs.readFile(filePath);
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch PDF: ${response.statusText}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const dataBuffer = Buffer.from(arrayBuffer);
     const data = await pdfParse(dataBuffer);
     return data.text;
   } catch (error) {

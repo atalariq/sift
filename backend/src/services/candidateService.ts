@@ -1,4 +1,5 @@
 import prisma from "../config/prisma";
+import { supabase } from "../config/supabase";
 import { AppError } from "../utils/AppError";
 import { processCV } from "../utils/cvProcessor";
 
@@ -113,11 +114,35 @@ export class CandidateService {
       throw new AppError("Unauthorized access.", 403);
     }
 
+    // Delete from Supabase
+    if (candidate.fileUrl) {
+      const bucketName = process.env.SUPABASE_BUCKET_NAME!;
+      const fileName = this._getFileNameFromUrl(candidate.fileUrl);
+      const { error } = await supabase.storage
+        .from(bucketName)
+        .remove([fileName]);
+
+      if (error) {
+        // Log the error but don't block deletion of the db record
+        console.error("Failed to delete file from storage:", error.message);
+      }
+    }
+
     await prisma.candidate.delete({
       where: { id: candidateId },
     });
 
     return { message: "Candidate deleted successfully" };
+  }
+
+  /**
+   * Extracts file name from a Supabase public URL.
+   * @param url The public URL of the file.
+   * @returns The file name.
+   */
+  private static _getFileNameFromUrl(url: string): string {
+    const parts = url.split("/");
+    return parts[parts.length - 1];
   }
 
   static async reprocessCandidateCV(candidateId: string, userId: string) {
