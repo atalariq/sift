@@ -13,11 +13,14 @@ const RegisterPage = ()=> {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e)=> {
     const { name, value } = e.target;
@@ -35,6 +38,9 @@ const RegisterPage = ()=> {
     if(name === 'password' && passwordError){
       setPasswordError('');
     }
+    if(name === 'confirmPassword' && confirmPasswordError){
+      setConfirmPasswordError('');
+    }
   };
   const handleSubmit = async (e)=> {
     e.preventDefault();
@@ -43,6 +49,12 @@ const RegisterPage = ()=> {
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setConfirmPasswordError("Password tidak cocok!");
+      return;
+    }
+
+    setLoading(true);
     try {
       // Panggil fungsi register
       await registerUser({
@@ -56,6 +68,8 @@ const RegisterPage = ()=> {
       router.push("/auth/login"); // Arahkan ke halaman login
     } catch (err) {
       setError(err.message); // Akan muncul jika email sudah terdaftar (Error 409)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,6 +122,23 @@ const RegisterPage = ()=> {
             )}
           </div>
 
+          <div>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              label="Confirm Password"
+              placeholder=""
+              required
+              autoComplete="new-password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+            {confirmPasswordError && (
+              <p className="text-red-600 text-sm mt-1">{confirmPasswordError}</p>
+            )}
+          </div>
+
           {error && (
             <div className="text-red-600 text-sm text-center">{error}</div>
           )}
@@ -115,9 +146,19 @@ const RegisterPage = ()=> {
           {/* Login Button */}
           <Button
             type="submit" variant="auth"
-           
+            disabled={loading}
           >
-            Register
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Registering...
+              </div>
+            ) : (
+              'Register'
+            )}
           </Button>
 
           {/* Divider */}

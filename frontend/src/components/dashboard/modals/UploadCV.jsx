@@ -8,6 +8,8 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentFile, setCurrentFile] = useState('');
 
 
   const handleUpload = async () => {
@@ -15,8 +17,14 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
   setUploading(true);
 
   try {
+    const totalFiles = selectedFiles.length;
+    
     // Kita kirim filenya satu-satu ke server
-    for (const file of selectedFiles) {
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      setCurrentFile(file.name);
+      setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+      
       await uploadCV(jobId, file);
     }
 
@@ -28,6 +36,8 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
     setShowErrorModal(true);
   } finally {
     setUploading(false);
+    setUploadProgress(0);
+    setCurrentFile('');
   }
 };
 
@@ -239,6 +249,25 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
               )}
             </button>
           </div>
+
+          {/* Progress Bar */}
+          {uploading && (
+            <div className="mt-4">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-gray-700 font-medium">Uploading...</span>
+                <span className="text-gray-600">{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+              {currentFile && (
+                <p className="text-xs text-gray-500 mt-2">Processing: {currentFile}</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
       </div>

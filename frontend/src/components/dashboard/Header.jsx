@@ -49,11 +49,11 @@ useEffect(() => {
     <header className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-end gap-6">
         {/* Search Section */}
-        <div className="flex items-center gap-4">
+        {/* <div className="flex items-center gap-4">
           <button className="p-2 bg-gray-100 hover:bg-gray-100 rounded-lg transition-colors">
             <SearchIcon className="text-gray-100" />
           </button>
-        </div>
+        </div> */}
 
         {/* User Profile Section */}
         <div className="flex items-center gap-3">
