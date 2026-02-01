@@ -7,4 +7,4 @@ if (!apiKey) {
 }
 
 export const ai = new GoogleGenAI({ apiKey: apiKey });
-export const AI_MODEL = "gemini-2.5-flash-lite";
+export const AI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";

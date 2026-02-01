@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
-import { CandidateService } from "../services/candidateService";
-import { catchAsync } from "../utils/catchAsync";
-import { AppError } from "../utils/AppError";
+import { CandidateService } from "../services/candidateService.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../utils/AppError.js";
+import { supabase } from "../config/supabase.js";
+import path from "path";
+
+const bucketName = process.env.SUPABASE_BUCKET_NAME!;
 
 export class CandidateController {
   /**
@@ -44,10 +48,37 @@ export class CandidateController {
       throw new AppError("No file uploaded. Please upload a PDF file.", 400);
     }
 
+    // Upload to Supabase
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const ext = path.extname(req.file.originalname);
+    const fileName = `cv-${uniqueSuffix}${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucketName)
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+      });
+
+    if (uploadError) {
+      throw new AppError(
+        `Failed to upload file to storage: ${uploadError.message}`,
+        500
+      );
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(fileName);
+
+    if (!urlData) {
+      throw new AppError("Failed to get public URL for the file.", 500);
+    }
+
     const candidate = await CandidateService.createCandidate({
       jobId,
       userId,
-      fileUrl: req.file.path,
+      fileUrl: urlData.publicUrl,
       originalFilename: req.file.originalname,
     });
 

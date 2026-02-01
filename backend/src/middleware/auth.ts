@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { AppError } from '../utils/AppError';
-import { catchAsync } from '../utils/catchAsync';
+import { AppError } from '../utils/AppError.js';
+import { catchAsync } from '../utils/catchAsync.js';
 
 interface JwtPayload {
   userId: string;
@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-export const authenticate = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const authenticate = catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

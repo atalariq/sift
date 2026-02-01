@@ -2,10 +2,10 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from './config/swagger';
-import { limiter } from './middleware/rateLimiter';
-import { errorHandler } from './middleware/errorHandler';
-import routes from './routes';
+import { swaggerSpec } from './config/swagger.js';
+import { limiter } from './middleware/rateLimiter.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import routes from './routes/index.js';
 
 const app: Application = express();
 
@@ -14,7 +14,7 @@ app.use(helmet());
 
 // CORS configuration
 const corsOptions = {
-  origin:  'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5000',
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -33,7 +33,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // Health check
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'success',
     message: 'Server is running',

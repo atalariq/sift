@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/AppError';
+import { AppError } from '../utils/AppError.js';
 
 export const errorHandler = (
   err: Error | AppError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -40,8 +40,8 @@ export const errorHandler = (
   // Generic error response
   return res.status(500).json({
     status: 'error',
-    message: process.env.NODE_ENV === 'development' 
-      ? err.message 
+    message: process.env.NODE_ENV === 'development'
+      ? err.message
       : 'Internal server error',
   });
 };
