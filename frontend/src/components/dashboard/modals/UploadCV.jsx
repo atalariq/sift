@@ -5,6 +5,9 @@ import { uploadCV } from '@/services/api';
 const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
 
   const handleUpload = async () => {
@@ -17,17 +20,26 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
       await uploadCV(jobId, file);
     }
 
-    alert(' CV berhasil diunggah! AI sedang memproses di latar belakang.');
-    onUpload([]); // Panggil ini untuk refresh list atau kasih feedback
+    setShowSuccessModal(true);
     setSelectedFiles([]);
-    onClose();
   } catch (error) {
     console.error('Upload gagal:', error);
-    alert('Ada masalah pas upload: ' + error.message);
+    setErrorMessage(error.message);
+    setShowErrorModal(true);
   } finally {
     setUploading(false);
   }
 };
+
+  const handleCloseSuccess = () => {
+    setShowSuccessModal(false);
+    onUpload(); // Panggil refresh setelah modal ditutup
+    onClose(); // Tutup modal upload
+  };
+
+  const handleCloseError = () => {
+    setShowErrorModal(false);
+  };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -55,7 +67,60 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <>
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10 16L14 20L22 12" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Successful!</h3>
+              <p className="text-gray-600 mb-6">
+                CV berhasil diunggah! AI sedang memproses di latar belakang.
+              </p>
+              <button
+                onClick={handleCloseSuccess}
+                className="w-full px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 10V16M16 22H16.01M28 16C28 22.6274 22.6274 28 16 28C9.37258 28 4 22.6274 4 16C4 9.37258 9.37258 4 16 4C22.6274 4 28 9.37258 28 16Z" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Upload Failed</h3>
+              <p className="text-gray-600 mb-6">
+                {errorMessage || 'Ada masalah saat mengupload CV'}
+              </p>
+              <button
+                onClick={handleCloseError}
+                className="w-full px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Modal - Hide when success/error modal is showing */}
+      {!showSuccessModal && !showErrorModal && (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
@@ -176,7 +241,9 @@ const UploadCV = ({ isOpen, onClose, onUpload, jobId }) => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+      )}
+    </>
   );
 };
 

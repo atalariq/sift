@@ -89,11 +89,7 @@ const AuthLayout = ({ children}) => {
 
    {/* Right side - Form */}
    <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-   <div className="w-full max-w-[300px] sm:max-w-[30.375rem]
-          rounded-md sm:rounded-xl bg-white 
-          px-4 sm:px-[1.6rem]
-          py-3 sm:pt-[0.875rem] sm:pb-[2rem]
-          shadow-lg">
+   <div className="w-full max-w-[300px] sm:max-w-[30.375rem] rounded-md sm:rounded-xl bg-white px-4 sm:px-[1.6rem] py-3 sm:pt-[0.875rem] sm:pb-[2rem] shadow-lg">
 
     {children}
    </div>

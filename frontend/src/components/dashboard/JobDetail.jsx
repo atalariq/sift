@@ -24,6 +24,7 @@ const JobDetail = ({ onBack }) => { // HAPUS 'job' dari props agar tidak bentrok
   const [jobStatus, setJobStatus] = useState('Active');
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // 1. FUNGSI AMBIL DATA DARI DATABASE
   // useEffect(() => {
@@ -125,14 +126,13 @@ const JobDetail = ({ onBack }) => { // HAPUS 'job' dari props agar tidak bentrok
 
   // 2. FUNGSI DELETE YANG BENERAN NEMBAK DATABASE
   const handleDeleteJob = async () => {
-    if (window.confirm(`Are you sure you want to delete this job? This action cannot be undone.`)) {
-      try {
-        await deleteJob(params.id);
-        alert('Job deleted successfully');
-        router.push('/dashboard/job-opening');
-      } catch (error) {
-        alert("Gagal menghapus: " + error.message);
-      }
+    try {
+      await deleteJob(params.id);
+      setIsDeleteModalOpen(false);
+      router.push('/dashboard/job-opening');
+    } catch (error) {
+      alert("Gagal menghapus: " + error.message);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -156,7 +156,7 @@ const JobDetail = ({ onBack }) => { // HAPUS 'job' dari props agar tidak bentrok
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={handleDeleteJob}
+            onClick={() => setIsDeleteModalOpen(true)}
             className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -255,6 +255,42 @@ const JobDetail = ({ onBack }) => { // HAPUS 'job' dari props agar tidak bentrok
         candidate={selectedCandidate} 
         onStatusChange={handleStatusChange} 
       />
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Delete Job Opening</h3>
+                <p className="text-sm text-gray-500 mt-1">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete this job? All associated candidates and data will be permanently removed.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteJob}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete Job
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

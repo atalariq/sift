@@ -16,12 +16,16 @@ const LoginPage = () => {
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) {
+      setError('');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -46,10 +50,10 @@ const LoginPage = () => {
         
         router.push("/dashboard");
       } else {
-        alert("Token tidak ditemukan dalam respon server!");
+        setError("Token tidak ditemukan dalam respon server!");
       }
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
     }
   };
 
@@ -94,6 +98,10 @@ const LoginPage = () => {
             />
             
           </div>
+
+          {error && (
+            <div className="text-red-600 text-sm text-center rounded-lg">{error}</div>
+          )}
 
           {/* Login Button */}
           <Button

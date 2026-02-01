@@ -61,7 +61,7 @@ const JobOpening = ({ jobs: propJobs }) => {
       setJobs(mapJobsData(updatedResponse));
       
       setIsModalOpen(false);
-      alert("Job Berhasil Disimpan ke Database!");
+      // alert("Job Berhasil Disimpan ke Database!");
     } catch (error) {
       console.error('❌ Error in handleAddJob:', error);
       alert("Gagal menyimpan ke database: " + error.message);

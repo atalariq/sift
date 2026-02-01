@@ -42,8 +42,7 @@ useEffect(() => {
     // Redirect ke halaman login
     router.push('/auth/login');
     
-    // Optional: Tampilkan notifikasi
-    alert('Logout berhasil!');
+
   };
 
   return (

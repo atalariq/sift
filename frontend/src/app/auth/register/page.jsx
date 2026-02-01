@@ -15,6 +15,10 @@ const RegisterPage = ()=> {
     email: '',
     password: ''
   });
+  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   const handleChange = (e)=> {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -28,11 +32,14 @@ const RegisterPage = ()=> {
     if(error){
       setError('');
     }
+    if(name === 'password' && passwordError){
+      setPasswordError('');
+    }
   };
   const handleSubmit = async (e)=> {
     e.preventDefault();
     if (formData.password.length < 8) {
-      alert("Password harus minimal 8 karakter!");
+      setPasswordError("Password harus minimal 8 karakter!");
       return;
     }
 
@@ -48,11 +55,9 @@ const RegisterPage = ()=> {
       alert("Registrasi Berhasil! Silakan login.");
       router.push("/auth/login"); // Arahkan ke halaman login
     } catch (err) {
-      alert(err.message); // Akan muncul jika email sudah terdaftar (Error 409)
+      setError(err.message); // Akan muncul jika email sudah terdaftar (Error 409)
     }
   };
-  const [errors, setErrors] = useState({});
-  const [error, setError] = useState('');
 
   return(
     <AuthLayout>
@@ -63,7 +68,7 @@ const RegisterPage = ()=> {
           
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
-          <Input
+          {/* <Input
             id="username"
             name="username"
             type="text"
@@ -73,7 +78,7 @@ const RegisterPage = ()=> {
             autoComplete="username"
             value={formData.username}
             onChange={handleChange}
-          />
+          /> */}
           <Input
             id="email"
             name="email"
@@ -98,8 +103,14 @@ const RegisterPage = ()=> {
               value={formData.password}
               onChange={handleChange}
             />
-            
+            {passwordError && (
+              <p className="text-red-600 text-sm mt-1">{passwordError}</p>
+            )}
           </div>
+
+          {error && (
+            <div className="text-red-600 text-sm text-center">{error}</div>
+          )}
 
           {/* Login Button */}
           <Button
